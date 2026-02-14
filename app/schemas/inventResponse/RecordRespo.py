@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 
-class InvRecCreate(BaseModel):
+class InvRecRespo(BaseModel):
     id: str
     techName: str
     chemName: str
