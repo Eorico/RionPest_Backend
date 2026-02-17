@@ -4,16 +4,20 @@ from app.schemas.InventCreate.RecordCreate import InvRecCreate
 from app.schemas.inventResponse.RecordRespo import InvRecRespo
 from app.Controllers.inventory.inventoryController import InventoryController
 from app.Database.database import getDb
+from app.auth.authJWTdepedency import getCurrentAdmin
 
 router = APIRouter(prefix='/inventory', tags=['Inventory'])
 
 def getController(db: Session = Depends(getDb)):
     return InventoryController(db)
 
-@router.post('/', response_model=InvRecRespo)
+@router.post('/', response_model=InvRecRespo, dependencies=[Depends(getCurrentAdmin)])
 def addInventory(record: InvRecCreate, controller: InventoryController = Depends(getDb)):
     try: 
-        return controller.addRecord(record.techName, record.chemName, record.usageLt, record.recDate)
+        return controller.addRecord(
+            record.techName, record.chemName, 
+            record.usageLt, record.recDate
+        )
     except Exception as e: 
         print(f"Error: adding a product {e}")
 
