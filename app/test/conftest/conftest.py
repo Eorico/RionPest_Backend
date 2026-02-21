@@ -6,7 +6,7 @@ from app.main import app
 from app.Controllers.inventory.inventoryController import InventoryController
 import pytest
 
-SQLALCHEMY_DATABASE_URL = "sqlite://:memory:"
+SQLALCHEMY_DATABASE_URL = "sqlite+pysqlite:///:memory:"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
