@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, Float, Date, ForeignKey
 from app.Database.database import Base
 from sqlalchemy.orm import relationship
 from datetime import date
 
 class InventoryRecord(Base):
-    __table__ = "inventory_records"
+    __tablename__ = "inventory_records"
     id = Column(Integer, primary_key=True, index=True)
     technicianID = Column(Integer, ForeignKey("technicians.id"))
     chemicalID = Column(Integer, ForeignKey("chemicals.id"))
