@@ -11,7 +11,10 @@ class AuthController:
             if not admin:
                 return None
             
-            token = createAccessToken({ "sub" : admin.username})
+            token = createAccessToken({ 
+                "sub" : admin.usename,
+                "role": admin.role
+            })
             
             return token
         except Exception as e:

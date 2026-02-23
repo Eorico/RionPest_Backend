@@ -4,15 +4,15 @@ from app.schemas.InventCreate.RecordCreate import InvRecCreate
 from app.schemas.inventResponse.RecordRespo import InvRecRespo
 from app.Controllers.inventory.inventoryController import InventoryController
 from app.Database.database import getDb
-from app.auth.authJWTdepedency import getCurrentAdmin
+from app.auth.authJWTdepedency import requireRole
 
 router = APIRouter(prefix='/inventory', tags=['Inventory'])
 
 def getController(db: Session = Depends(getDb)):
     return InventoryController(db)
 
-@router.post('/', response_model=InvRecRespo, dependencies=[Depends(getCurrentAdmin)])
-def addInventory(record: InvRecCreate, controller: InventoryController = Depends(getDb)):
+@router.post('/', response_model=InvRecRespo, dependencies=[Depends(requireRole("admin"))])
+def addInventory(record: InvRecCreate, controller: InventoryController = Depends(getController)):
     try: 
         return controller.addRecord(
             record.techName, record.chemName, 
@@ -37,7 +37,7 @@ def getInventory(controller: InventoryController = Depends(getController)):
     except Exception as e:
         print(f"Error: get record unsuccessfull {e}")
 
-@router.put('/{recordId}', response_model=InvRecRespo)
+@router.put('/{recordId}', response_model=InvRecRespo, dependencies=[Depends(requireRole(["admin"]))])
 def updateInventory(recordId: int, usageLt: float, controller: InventoryController = Depends(getController)):
     record = controller.updateRecord(recordId, usageLt)
     try:
@@ -53,7 +53,7 @@ def updateInventory(recordId: int, usageLt: float, controller: InventoryControll
     except Exception as e:
         print(f"Error: putting record unsuccessfull {e}")
     
-@router.get('/{period}')
+@router.get('/{recordId}', dependencies=[Depends(requireRole(["admin"]))])
 def deleteInventory(recordId: int, controller: InventoryController = Depends(getController)):
     success = controller.deleteRecord(recordId)
     try:

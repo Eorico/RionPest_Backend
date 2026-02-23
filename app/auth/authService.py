@@ -14,7 +14,7 @@ pwdContext = CryptContext(schemes=['bcrypt'], deprecated="auto")
 # pass functionalities
 def hashPassword(password: str):
     try:
-        return pwdContext.verify(password)
+        return pwdContext.hash(password)
     except Exception as e:
         print(f"Error: hashed password unsuccessfull {e}")
         
@@ -40,5 +40,6 @@ def authenticateAdmin(db: Session, username: str, password: str):
 # jwt
 def createAccessToken(data: dict):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    data.update({ "exp" : expire })
+    toEncode = data.copy()
+    toEncode.update({"exp": expire})
     return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
