@@ -6,7 +6,7 @@ from app.main import app
 from app.Controllers.inventory.inventoryController import InventoryController
 import pytest
 
-SQLALCHEMY_DATABASE_URL = "sqlite+pysqlite:///:memory:"
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://username:RAIONN123@localhost/pest_inventory"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
@@ -19,25 +19,25 @@ TestingSessionLocal = sessionmaker(
     bind=engine
     )
 
-def overrideGetdb():
+@pytest.fixture(scope="function")
+def dbSession():
+    Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
+        Base.metadata.drop_all(bind=engine)
         
-app.dependency_overrides[getDb]=overrideGetdb
-
-Base.metadata.create_all(bind=engine)
-
-@pytest.fixture
-def client():
+@pytest.fixture(scope="function")
+def client(dbSession):
+    def overrideGetDb():
+        return dbSession
+    app.dependency_overrides[getDb] = overrideGetDb
     with TestClient(app) as c:
         yield c
-        
-@pytest.fixture
-def controller():
-    db = TestingSessionLocal()
-    Base.metadata.create_all(bind=engine)
-    yield InventoryController(db)
-    db.close()
+    app.dependency_overrides.clear()
+    
+@pytest.fixture(scope="function")
+def controller(dbSession):
+    yield InventoryController(dbSession)    
