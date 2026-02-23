@@ -1,12 +1,14 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import date, time
 
 class InvRecRespo(BaseModel):
-    id: str
-    techName: str
-    chemName: str
-    usageLt: float
-    recDate: date
+    id: int
+    treatmentDate: date
+    clientName: str
+    startTime: time
+    endTime: time
+    chemicalName: str
+    actualChemicalOnHand: float
     
     class Config:
-        ormMode = True
+        fromAttributes = True

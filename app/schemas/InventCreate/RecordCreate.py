@@ -1,8 +1,10 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import date, time
 
 class InvRecCreate(BaseModel):
-    techName: str
-    chemName: str
-    usageLt: float
-    recDate: date
+    treatmentDate: date
+    clientName: str
+    startTime: time
+    endTime: time
+    chemicalName: str
+    actualChemicalOnHand: float

@@ -11,12 +11,13 @@ router = APIRouter(prefix='/inventory', tags=['Inventory'])
 def getController(db: Session = Depends(getDb)):
     return InventoryController(db)
 
-@router.post('/', response_model=InvRecRespo, dependencies=[Depends(requireRole("admin"))])
+@router.post('/', response_model=InvRecRespo, dependencies=[Depends(requireRole(["admin"]))])
 def addInventory(record: InvRecCreate, controller: InventoryController = Depends(getController)):
     try: 
         return controller.addRecord(
-            record.techName, record.chemName, 
-            record.usageLt, record.recDate
+            record.treatmentDate, record.clientName, 
+            record.startTime, record.endTime, record.chemicalName, 
+            record.actualChemicalOnHand
         )
     except Exception as e: 
         print(f"Error: adding a product {e}")
@@ -28,10 +29,12 @@ def getInventory(controller: InventoryController = Depends(getController)):
         return [
             InvRecRespo(
                 id=r.id,
-                techName=r.technician.name,
-                chemName=r.chemical.name,
-                usageLt=r.usageLiters,
-                recDate=r.recordDate
+                treatmentDate=r.treatmentDate,
+                clientName=r.clientName,
+                startTime=r.startTime,
+                endTime=r.endTime,
+                chemicalName=r.chemical.name,
+                actualChemicalOnHand=r.actualChemicalOnHand
             ) for r in records
         ]
     except Exception as e:
@@ -45,10 +48,12 @@ def updateInventory(recordId: int, usageLt: float, controller: InventoryControll
             raise HTTPException(status_code=404, detail="Recod not found!")
         return InvRecRespo(
             id=record.id,
-            techName=record.technician.name,
-            chemName=record.chemical.name,
-            usageLt=record.usageLiters,
-            recDate=record.recordDate
+            treatmentDate=record.treatmentDate,
+            clientName=record.clientName,
+            startTime=record.startTime,
+            endTime=record.endTime,
+            chemicalName=record.chemical.name,
+            actualChemicalOnHand=record.actualChemicalOnHand
         )
     except Exception as e:
         print(f"Error: putting record unsuccessfull {e}")
@@ -71,9 +76,11 @@ def report(period: str, controller: InventoryController = Depends(getController)
     return [
         InvRecRespo(
             id=r.id,
-            techName=r.technician.name,
-            chemName=r.chemical.name,
-            usageLt=r.usageLiters,
-            recDate=r.recordDate
+            treatmentDate=r.treatmentDate,
+            clientName=r.clientName,
+            startTime=r.startTime,
+            endTime=r.endTime,
+            chemicalName=r.chemical.name,
+            actualChemicalOnHand=r.actualChemicalOnHand
         ) for r in records
     ]

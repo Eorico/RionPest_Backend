@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from datetime import date
+from datetime import date, time
 from app.Controllers.businessLogic.addData.addData import getAddInventoryRecord
 from app.Controllers.businessLogic.readData.readData import fetchAllRecords
 from app.Controllers.businessLogic.deleteData.deleteData import deleteInventoryRecord
@@ -11,18 +11,20 @@ class InventoryController:
         self.db = db
         
     def addRecord(
-        self, techName: str, chemName: str,
-        usageLt: float, recDate: date
+        self, treatmentDate: date, clientName: str,
+        startTime: time, endTime: time, chemicalName: str,
+        actualOnHand: float
     ):
         return getAddInventoryRecord(
-            self.db, techName, chemName, usageLt, recDate,
+            self.db, treatmentDate, clientName, startTime, endTime,
+            chemicalName, actualOnHand,
         )
         
     def getRecord(self):
         return fetchAllRecords(self.db)
     
-    def updateRecord(self, recId: int, usageLt: float):
-        return updateInventoryUsage(self.db, recId, usageLt)
+    def updateRecord(self, recId: int, actualOnHand: float):
+        return updateInventoryUsage(self.db, recId, actualOnHand)
     
     def deleteRecord(self, recId: int):
         return deleteInventoryRecord(self.db, recId)

@@ -1,18 +1,8 @@
-from datetime import date
+from datetime import date, time
 from app.Models.chemical.Chemical import Chemical
 from app.Models.technician.Technician import Technician
 from app.Models.record.inventoryRecord import InventoryRecord
 from sqlalchemy.orm import Session 
-
-def getAddTechnician(db: Session, name: str):
-    tech = db.query(Technician).filter_by(name=name).first()
-    if not tech:
-        tech = Technician(name=name)
-        db.add(tech)
-        db.commit()
-        db.refresh(tech)
-        
-    return tech
 
 def getAddChemical(db: Session, name: str):
     chem = db.query(Chemical).filter_by(name=name).first()
@@ -25,18 +15,20 @@ def getAddChemical(db: Session, name: str):
     return chem
 
 def getAddInventoryRecord(
-    db: Session, techName: str, 
-    chemName: str, usageLt: float,
-    recDate: date
+    db: Session, treatmentDate: date, 
+    clientName: str, startTime: time,
+    endTime: time, chemicalName: str,
+    actualOnHand: float
     ):
-    tech = getAddTechnician(db, techName)
-    chem = getAddChemical(db, chemName)
+    chem = getAddChemical(db, chemicalName)
     
     record = InventoryRecord(
-        techId=tech.id,
+        treatmentDate=treatmentDate,
+        clientName=clientName,
+        startTime=startTime,
+        endTime=endTime,
         chemId=chem.id,
-        usageLt=usageLt,
-        recDate=recDate
+        actualChemicalOnhand=actualOnHand
     )
     db.add(record)
     db.commit()
