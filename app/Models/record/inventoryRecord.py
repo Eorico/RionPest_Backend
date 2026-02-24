@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Time, Float, Date
 from app.Database.database import Base
-from sqlalchemy.orm import relationship
 from datetime import date
 
 class InventoryRecord(Base):
