@@ -8,15 +8,15 @@ def generateReport(db: Session, period: str):
     
     if period == "week":
         start = today - timedelta(days=7)
-        query = query.filter(InventoryRecord.recordDate >= start)
+        query = query.filter(InventoryRecord.treatmentDate >= start)
         
     elif period == "month":
         query = query.filter(
-            InventoryRecord.recordDate.month == today.month,
-            InventoryRecord.recordDate.year == today.year
+            InventoryRecord.treatmentDate.month == today.month,
+            InventoryRecord.treatmentDate.year == today.year
         )
     
     elif period == "year":
-        query = query.filter(InventoryRecord.recordDate.year == today.year)
+        query = query.filter(InventoryRecord.treatmentDate.year == today.year)
         
     return query.all()

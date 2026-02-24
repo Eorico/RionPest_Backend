@@ -33,7 +33,7 @@ def getInventory(controller: InventoryController = Depends(getController)):
                 clientName=r.clientName,
                 startTime=r.startTime,
                 endTime=r.endTime,
-                chemicalName=r.chemical.name,
+                chemicalName=r.chemicalName.name,
                 actualChemicalOnHand=r.actualChemicalOnHand
             ) for r in records
         ]
@@ -52,7 +52,7 @@ def updateInventory(recordId: int, usageLt: float, controller: InventoryControll
             clientName=record.clientName,
             startTime=record.startTime,
             endTime=record.endTime,
-            chemicalName=record.chemical.name,
+            chemicalName=record.chemicalName.name,
             actualChemicalOnHand=record.actualChemicalOnHand
         )
     except Exception as e:
@@ -80,7 +80,7 @@ def report(period: str, controller: InventoryController = Depends(getController)
             clientName=r.clientName,
             startTime=r.startTime,
             endTime=r.endTime,
-            chemicalName=r.chemical.name,
+            chemicalName=r.chemicalName.name,
             actualChemicalOnHand=r.actualChemicalOnHand
         ) for r in records
     ]

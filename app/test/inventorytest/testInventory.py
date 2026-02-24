@@ -1,14 +1,14 @@
 import pytest
 from datetime import date, time
 
-def testAddInventory(client):
+def test_add_inventory(client):
     response = client.post(
         "/inventory/",
         json={
         "treatmentDate": str(date.today()),
         "clientName":  "Client A",
-        "startTime": time,
-        "endTime" : time,
+        "startTime": str(time(9,0)),
+        "endTime" : str(time(10,0)),
         "chemicalName": "Chemical A",
         "actualChemicalOnHand": 15.0
         }
@@ -20,17 +20,17 @@ def testAddInventory(client):
     assert data["chemicalName"] == "Chemical A"
     assert data["actualChemicalOnHand"] == 15.0
     assert data["treatmentDate"] == str(date.today())
-    assert data["startTime"] == time
-    assert data["endTime"] == time
+    assert data["startTime"] == "09:00:00"
+    assert data["endTime"] == "10:00:00"
     
-def testUpdateInventory(client):
+def test_update_inventory(client):
     addResp = client.post(
         "/inventory/",
         json={
         "treatmentDate": str(date.today()),
         "clientName":  "Client B",
-        "startTime": time,
-        "endTime" : time,
+        "startTime": str(time(9,0)),
+        "endTime" : str(time(10,0)),
         "chemicalName": "Chemical B",
         "actualChemicalOnHand": 20.0
         }
@@ -42,14 +42,14 @@ def testUpdateInventory(client):
     assert updateResp.status_code == 200
     assert updateResp.json()["actualChemcialOnHand"] == 12.5
     
-def testDeleteInventory(client):
+def test_delete_inventory(client):
     addResp = client.post(
         "/inventory/",
         json={
         "treatmentDate": str(date.today()),
         "clientName":  "Client C",
-        "startTime": time,
-        "endTime" : time,
+        "startTime": str(time(9,0)),
+        "endTime" : str(time(10,0)),
         "chemicalName": "Chemical C",
         "actualChemicalOnHand": 10.0
         }

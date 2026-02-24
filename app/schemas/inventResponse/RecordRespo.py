@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, time
 
 class InvRecRespo(BaseModel):
@@ -9,6 +9,4 @@ class InvRecRespo(BaseModel):
     endTime: time
     chemicalName: str
     actualChemicalOnHand: float
-    
-    class Config:
-        fromAttributes = True
+    model_config = ConfigDict(from_attributes=True)

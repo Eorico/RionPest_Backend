@@ -11,7 +11,7 @@ engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread" : Fa
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="function")
-def dbSession():
+def db_Session():
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
     yield session
@@ -19,7 +19,7 @@ def dbSession():
     Base.metadata.drop_all(bind=engine)
     
 @pytest.fixture
-def testAdmin(dbSession):
+def test_Admin(dbSession):
     password = "secret123"
     hashPassword = pwdContext.hash(password)
     admin = Admin(username="admin_test", passwordHash=hashPassword)
