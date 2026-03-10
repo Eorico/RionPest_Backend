@@ -5,11 +5,17 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv(
+    'DATABASE_URL',
+    'mysql+pymysql://RaionnPest:RAIONN123@localhost:3306/pest_inventory'
+)
 
 engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True)
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autcommit=False)
+SessionLocal = sessionmaker(
+    bind=engine, autoflush=False, 
+    autcommit=False
+)
 
 Base = declarative_base()
 

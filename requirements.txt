@@ -1,1 +1,8 @@
-RAIONN PEST CONTROL COMPANY : INVENTORY MANAGEMENT SYSTEM
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+python-jose
+passlib[bcrypt]
+pytest
+requests
