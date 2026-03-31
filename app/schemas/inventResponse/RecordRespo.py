@@ -19,6 +19,3 @@ class InvRecRespo(BaseModel):
     chemical_name: str
     actual_chemical_on_hand: float
     model_config = ConfigDict(from_attributes=True)
-    
-    class Config:
-        fromAttributes = True

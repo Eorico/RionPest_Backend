@@ -17,7 +17,7 @@ session_local = sessionmaker(
     autcommit=False
 )
 
-base = declarative_base()
+Base = declarative_base()
 
 def get_db():
     db = session_local()

@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.Database.database import Base, getDb
+from app.Database.database import Base, get_db
 from app.main import app
 from app.Controllers.inventory.inventoryController import InventoryController
 import pytest
@@ -13,7 +13,7 @@ engine = create_engine(
     echo=True,
     pool_pre_ping=True
     )
-TestingSessionLocal = sessionmaker(
+testing_session_local = sessionmaker(
     autocommit=False, 
     autoflush=False, 
     bind=engine
@@ -22,7 +22,7 @@ TestingSessionLocal = sessionmaker(
 @pytest.fixture(scope="function")
 def db_Session():
     Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
+    db = testing_session_local()
     try:
         yield db
     finally:
@@ -30,14 +30,14 @@ def db_Session():
         Base.metadata.drop_all(bind=engine)
         
 @pytest.fixture(scope="function")
-def client(dbSession):
-    def overrideGetDb():
-        return dbSession
-    app.dependency_overrides[getDb] = overrideGetDb
+def client(db_session):
+    def override_get_db():
+        return db_session
+    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
     
 @pytest.fixture(scope="function")
-def controller(dbSession):
-    yield InventoryController(dbSession)    
+def controller(db_session):
+    yield InventoryController(db_session)    
