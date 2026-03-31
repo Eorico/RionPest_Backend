@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 class TokenResponse(BaseModel):
-    accessToken: str
-    tokenType: str = "bearer"
+    access_token: str
+    token_type: str = "bearer"

@@ -1,34 +1,34 @@
 from sqlalchemy.orm import Session 
 from app.Models.record.inventoryRecord import InventoryRecord
 
-def updateInventoryUsage(
-    db: Session, recId: int,
-    treatmentDate=None,
-    clientName=None,
-    startTime=None,
-    endTime=None,
-    actualOnHand=None
+def update_inventory_usage(
+    db: Session, rec_id: int,
+    Date=None,
+    client_name=None,
+    start_time=None,
+    end_time=None,
+    actual_chemical_on_hand=None
     ):
     try:
-        record = db.query(InventoryRecord).get(recId)
+        record = db.query(InventoryRecord).get(rec_id)
         
         if not record:
             return None
         
-        if treatmentDate:
-            record.treatmentDate = treatmentDate
+        if Date:
+            record.date = Date
         
-        if clientName:
-            record.clientName = clientName
+        if client_name:
+            record.client_name = client_name
             
-        if startTime:
-            record.startTime = startTime
+        if start_time:
+            record.start_time = start_time
         
-        if endTime:
-            record.endTime = endTime
+        if end_time:
+            record.end_time = end_time
             
-        if actualOnHand is not None:
-            record.actualChemicalOnHand = actualOnHand
+        if actual_chemical_on_hand is not None:
+            record.actual_chemical_on_hand = actual_chemical_on_hand
         
         db.commit()
         db.refresh(record) 

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from app.Routes.inventory.inventoryRoutes import router
-from app.Database.database import Base, engine
+from app.Database.database import base, engine
 
 #tables
-Base.metadata.create_all(bind=engine)
+base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Pest Control Inventory System")
 

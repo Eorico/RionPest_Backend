@@ -3,14 +3,14 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from app.auth.authService import SECRET_KEY, ALGORITHM
 from sqlalchemy.orm import Session
-from app.Database.database import getDb
+from app.Database.database import get_db
 from app.Models.admin.admin import Admin
 
 oauthScheme = OAuth2PasswordBearer(tokenUrl='auth/login')
 
-def getCurrentAdmin(
+def get_current_admin(
     token: str = Depends(oauthScheme),
-    db: Session = Depends(getDb)
+    db: Session = Depends(get_db)
     ):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -30,7 +30,7 @@ def getCurrentAdmin(
     return admin
 
 def requireRole(allowedRoles: list):
-    def roleChecker(currentAdmin: Admin = Depends(getCurrentAdmin)):
+    def roleChecker(currentAdmin: Admin = Depends(get_current_admin)):
         if currentAdmin.role not in allowedRoles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

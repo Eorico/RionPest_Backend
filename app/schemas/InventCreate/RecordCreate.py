@@ -2,9 +2,9 @@ from pydantic import BaseModel
 from datetime import date, time
 
 class InvRecCreate(BaseModel):
-    treatmentDate: date
-    clientName: str
-    startTime: time
-    endTime: time
-    chemicalName: str
-    actualChemicalOnHand: float
+    Date: date
+    client_name: str
+    start_time: time
+    end_time: time
+    chemical_name: str
+    actual_chemical_on_hand: float

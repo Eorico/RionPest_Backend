@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.auth.authService import authenticateAdmin, createAccessToken
+from app.auth.authService import authenticate_admin, create_access_token
 
 class AuthController:
     def __init__(self, db: Session):
@@ -7,12 +7,12 @@ class AuthController:
         
     def login(self, username: str, password: str):
         try:
-            admin = authenticateAdmin(self.db, username, password)
+            admin = authenticate_admin(self.db, username, password)
             if not admin:
                 return None
             
-            token = createAccessToken({ 
-                "sub" : admin.usename,
+            token = create_access_token({ 
+                "sub" : admin.username,
                 "role": admin.role
             })
             

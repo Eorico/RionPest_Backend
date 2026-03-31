@@ -1,20 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.Database.database import getDb
+from app.Database.database import get_db
 from app.Controllers.admin.authController import AuthController
 from app.schemas.admin.LoginRequest import LoginRequest
 from app.schemas.admin.TokenResponse import TokenResponse
 
 router = APIRouter(prefix='/auth', tags=["Auth"])
 
-def getController(db: Session = Depends(getDb)):
+def get_controller(db: Session = Depends(get_db)):
     try:
         return AuthController(db)
     except Exception as e:
         print(f"Error: Admin Controller failed {e}")
         
 @router.post('/login', response_model=TokenResponse)
-def login(data: LoginRequest, controller: AuthController = Depends(getController)): 
+def login(data: LoginRequest, controller: AuthController = Depends(get_controller)): 
     try:
         token = controller.login(data.username, data.password)
         if not token:

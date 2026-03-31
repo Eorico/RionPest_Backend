@@ -12,15 +12,15 @@ DATABASE_URL = os.getenv(
 
 engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True)
 
-SessionLocal = sessionmaker(
+session_local = sessionmaker(
     bind=engine, autoflush=False, 
     autcommit=False
 )
 
-Base = declarative_base()
+base = declarative_base()
 
-def getDb():
-    db = SessionLocal()
+def get_db():
+    db = session_local()
     try: 
         yield db
     finally:  

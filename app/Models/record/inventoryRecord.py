@@ -1,23 +1,28 @@
 from sqlalchemy import Column, Integer, String, Time, Float, Date
 from app.Database.database import Base
 from datetime import date
+import enum
+
+class InventoryCategory(enum.Enum):
+    treatment = "treatment"
+    inspection = "inspection"
 
 class InventoryRecord(Base):
     __tablename__ = "inventory_records"
     
     id = Column(Integer, primary_key=True, index=True)
-    treatmentDate = Column(Date, default=date.today)
-    clientName = Column(String(100), nullable=False)
-    startTime = Column(Time, nullable=False)
-    endTime = Column(Time, nullable=False)
-    chemicalName = Column(String(100), nullable=False)
-    actualChemicalOnHand = Column(Float, nullable=False)
+    date = Column(Date, default=date.today)
+    client_name = Column(String(100), nullable=False)
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
+    chemical_name = Column(String(100), nullable=False)
+    actual_chemical_on_hand = Column(Float, nullable=False)
     
     def __repr__(self):
         return (
-            f"<InventoryRecord(date={self.treatmentDate})>,"
-            f"client={self.clientName},"
-            f"chemical={self.chemicalName.name},"
-            f"remaining={self.actualChemicalOnHand},"
+            f"<InventoryRecord(date={self.date})>,"
+            f"client={self.client_name},"
+            f"chemical={self.chemical_name.name},"
+            f"remaining={self.actual_chemical_on_hand},"
         )
     
