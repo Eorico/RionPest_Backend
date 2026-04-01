@@ -5,6 +5,11 @@ from app.schemas.inventResponse.RecordRespo import InvRecRespo
 from app.Controllers.inventory.inventoryController import InventoryController
 from app.Database.database import get_db
 from app.auth.authJWTdepedency import requireRole
+from app.Models.record.inventoryRecord import InventoryRecord
+from app.Controllers.businessLogic.deleteData.deleteData import (
+    soft_delete, permanent_delete, restore_deleted_record
+)
+
 
 router = APIRouter(prefix='/inventory', tags=['Inventory'])
 
@@ -58,15 +63,30 @@ def update_inventory(rec_id: int, usage_lt: float, controller: InventoryControll
     except Exception as e:
         print(f"Error: putting record unsuccessfull {e}")
     
-@router.get('/{recordId}', dependencies=[Depends(requireRole(["admin"]))])
-def delete_inventory(rec_id: int, controller: InventoryController = Depends(get_controller)):
-    success = controller.delete_record(rec_id)
-    try:
-        if not success:
-            raise HTTPException(status_code=404, detail="Record not found!")
-        return { "message" : "Record deleted successfully" }
-    except Exception as e:
-        print(f"Error: deleting product unsuccessfull {e}")
+@router.get('/recycle-bin', response_model=list[InvRecRespo])
+def get_recycle_bin(db: Session = Depends(get_db)):
+    return db.query(InventoryRecord).filter(InventoryRecord.is_deleted == True).all()
+
+@router.delete('{recordId}')
+def move_to_bin(recordId: int, db: Session = Depends(get_db)):
+    if soft_delete(db, recordId):
+        return {"message": "Moved to recycle bin"}
+    raise HTTPException(status_code=404, detail="Record not found")
+
+@router.post('/restore/{recordId}')
+def restore(recordId: int, db: Session = Depends(get_db)):
+    restore_deleted_record(db, rec_id=recordId)
+    return {"message": "Record restored"}
+
+@router.post('/restore-all')
+def restore_all(db: Session = Depends(get_db)):
+    restore_deleted_record(db, restore_all=True)
+    return {"message": "All record restored"}
+
+@router.delete('/permanent/{recordId}')
+def hard_delete(recordId: int, db: Session = Depends(get_db)):
+    permanent_delete(db, rec_id=recordId)
+    return {"message": "Permanently deleted"}
         
 @router.get('/report/{period}', response_model=list[InvRecRespo])
 def report(period: str, controller: InventoryController = Depends(get_controller)):

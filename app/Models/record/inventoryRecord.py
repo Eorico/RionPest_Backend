@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Time, Float, Date
+from sqlalchemy import Column, Integer, String, Time, Float, Date, Boolean
 from app.Database.database import Base
 from datetime import date
 import enum
@@ -17,6 +17,8 @@ class InventoryRecord(Base):
     end_time = Column(Time, nullable=False)
     chemical_name = Column(String(100), nullable=False)
     actual_chemical_on_hand = Column(Float, nullable=False)
+    
+    is_deleted = Column(Boolean, default=False, nullable=False)
     
     def __repr__(self):
         return (

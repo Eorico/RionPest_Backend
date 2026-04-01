@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  
+  mysql:
+    image: mysql:8
+    container_name: pest_mysql
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pest_inventory
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: pest_backend
+    depends_on:
+      - mysql
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://RaionnPest:RAIONN123@localhost:3306/pest_inventory
+
+volumes:
+  mysql_data:
