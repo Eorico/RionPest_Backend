@@ -1,16 +1,15 @@
-from sqlalchemy import Column, Integer, String, Time, Float, Date, Boolean
+from sqlalchemy import Column, Integer, String, Time, Float, Date, Boolean, Enum
 from app.Database.database import Base
 from datetime import date
-import enum
-
-class InventoryCategory(enum.Enum):
-    treatment = "treatment"
-    inspection = "inspection"
+from app.category.category import CategoryEnum
 
 class InventoryRecord(Base):
     __tablename__ = "inventory_records"
     
     id = Column(Integer, primary_key=True, index=True)
+    
+    category = Column(Enum(CategoryEnum), default=CategoryEnum.treatment, nullable=False)
+    
     date = Column(Date, default=date.today)
     client_name = Column(String(100), nullable=False)
     start_time = Column(Time, nullable=False)
@@ -23,6 +22,7 @@ class InventoryRecord(Base):
     def __repr__(self):
         return (
             f"<InventoryRecord(date={self.date})>,"
+            f"catgery={self.category},"
             f"client={self.client_name},"
             f"chemical={self.chemical_name.name},"
             f"remaining={self.actual_chemical_on_hand},"

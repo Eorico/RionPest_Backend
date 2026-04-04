@@ -13,12 +13,12 @@ class InventoryController:
         self.db = db
         
     def add_record(
-        self, Date: date, client_name: str,
+        self, Date: date, category: str,client_name: str,
         start_time: time, end_time: time, chemical_name: str,
         actual_chemical_on_hand: float
     ):
         return get_add_inventory_record(
-            self.db, Date, client_name, start_time, end_time,
+            self.db, Date, category,client_name, start_time, end_time,
             chemical_name, actual_chemical_on_hand,
         )
         

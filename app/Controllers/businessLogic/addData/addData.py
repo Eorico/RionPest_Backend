@@ -3,7 +3,7 @@ from app.Models.record.inventoryRecord import InventoryRecord
 from sqlalchemy.orm import Session 
 
 def get_add_inventory_record(
-    db: Session, Date: date, 
+    db: Session, Date: date, category: str,
     client_name: str, start_time: time,
     end_time: time, chemical_name: str,
     actual_chemical_on_hand: float
@@ -11,6 +11,7 @@ def get_add_inventory_record(
     
     record = InventoryRecord(
         Date=Date,
+        category=category,
         client_name=client_name,
         start_time=start_time,
         end_time=end_time,

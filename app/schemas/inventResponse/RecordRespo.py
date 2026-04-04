@@ -1,10 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import date, time
-from enum import Enum
-
-class CategoryEnum(str, Enum):
-    treatment = "treatment"
-    inspection = "inspection"
+from app.category.category import CategoryEnum
 
 class InvRecRespo(BaseModel):
     id: int

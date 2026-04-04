@@ -4,6 +4,7 @@ from app.Models.record.inventoryRecord import InventoryRecord
 def update_inventory_usage(
     db: Session, rec_id: int,
     Date=None,
+    category=None,
     client_name=None,
     start_time=None,
     end_time=None,
@@ -17,6 +18,9 @@ def update_inventory_usage(
         
         if Date:
             record.date = Date
+            
+        if category:
+            record.category = category
         
         if client_name:
             record.client_name = client_name

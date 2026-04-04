@@ -14,12 +14,15 @@ def get_controller(db: Session = Depends(get_db)):
         print(f"Error: Admin Controller failed {e}")
         
 @router.post('/login', response_model=TokenResponse)
-def login(data: LoginRequest, controller: AuthController = Depends(get_controller)): 
+def login(data: LoginRequest, db: Session = Depends(get_db)): 
     try:
+        # Initialize the controller inside the route or via dependency
+        controller = AuthController(db)
         token = controller.login(data.username, data.password)
         if not token:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         return { "access_token": token }
     except Exception as e:
         print(f"Error: Login Failed {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
     

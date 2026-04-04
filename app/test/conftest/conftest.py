@@ -6,7 +6,7 @@ from app.main import app
 from app.Controllers.inventory.inventoryController import InventoryController
 import pytest
 
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://username:RAIONN123@localhost/pest_inventory"
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://RaionnPest:RAIONN123@localhost:3306/db_raionn_inventory"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
