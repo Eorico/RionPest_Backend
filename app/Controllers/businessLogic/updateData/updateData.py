@@ -4,11 +4,15 @@ from app.Models.record.inventoryRecord import InventoryRecord
 def update_inventory_usage(
     db: Session, rec_id: int,
     Date=None,
+    month=None,
+    year=None,
     category=None,
     client_name=None,
     start_time=None,
     end_time=None,
-    actual_chemical_on_hand=None
+    meridiem=None,
+    chemical_use=None,
+    actual_chemical_used=None
     ):
     try:
         record = db.query(InventoryRecord).get(rec_id)
@@ -18,6 +22,12 @@ def update_inventory_usage(
         
         if Date:
             record.date = Date
+            
+        if month:
+            record.month = month
+            
+        if year:
+            record.year = year
             
         if category:
             record.category = category
@@ -31,8 +41,14 @@ def update_inventory_usage(
         if end_time:
             record.end_time = end_time
             
-        if actual_chemical_on_hand is not None:
-            record.actual_chemical_on_hand = actual_chemical_on_hand
+        if meridiem:
+            record.meridiem = meridiem
+            
+        if chemical_use is not None:
+            record.chemicals_use = actual_chemical_used
+            
+        if actual_chemical_used is not None:
+            record.actual_chemicals_used = actual_chemical_used
         
         db.commit()
         db.refresh(record) 

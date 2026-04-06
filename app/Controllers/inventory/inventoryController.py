@@ -13,20 +13,20 @@ class InventoryController:
         self.db = db
         
     def add_record(
-        self, Date: date, category: str,client_name: str,
-        start_time: time, end_time: time, chemical_name: str,
-        actual_chemical_on_hand: float
+        self, Date: int, month: int, year: int, category: str,client_name: str,
+        start_time: time, end_time: time, meridiem: str, chemical_use: list,
+        actual_chemical_used: list
     ):
         return get_add_inventory_record(
-            self.db, Date, category,client_name, start_time, end_time,
-            chemical_name, actual_chemical_on_hand,
+            self.db, Date, month, year, category,client_name, start_time, end_time, meridiem,
+            chemical_use, actual_chemical_used,
         )
         
     def get_record(self):
         return fetch_all_records(self.db)
     
-    def update_record(self, rec_id: int, actual_chemical_on_hand: float):
-        return update_inventory_usage(self.db, rec_id, actual_chemical_on_hand)
+    def update_record(self, rec_id: int, actual_chemical_used: float):
+        return update_inventory_usage(self.db, rec_id, actual_chemical_used)
     
     def get_report(self, period: str):
         return generate_report(self.db, period)

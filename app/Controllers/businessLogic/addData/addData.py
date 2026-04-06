@@ -1,26 +1,50 @@
-from datetime import date, time
-from app.Models.record.inventoryRecord import InventoryRecord
-from sqlalchemy.orm import Session 
+from datetime import time
+from app.Models.record.inventoryRecord import InventoryRecord, ChemicalUsed, ActualChemicalUsed
+from sqlalchemy.orm import Session, joinedload 
 
 def get_add_inventory_record(
-    db: Session, Date: date, category: str,
+    db: Session, date: int, month: int, year: int, category: str,
     client_name: str, start_time: time,
-    end_time: time, chemical_name: str,
-    actual_chemical_on_hand: float
+    end_time: time, meridiem: str, chemical_use: list,
+    actual_chemical_used: list
     ):
     
-    record = InventoryRecord(
-        Date=Date,
+    new_record = InventoryRecord(
+        date=date,
+        month=month,
+        year=year,
         category=category,
         client_name=client_name,
         start_time=start_time,
         end_time=end_time,
-        chemical_name=chemical_name,
-        actual_chemical_on_hand=actual_chemical_on_hand
+        meridiem=meridiem,
     )
-    db.add(record)
+    db.add(new_record)
     db.commit()
-    db.refresh()
-    return record
+    db.refresh(new_record)
+
+    for item in chemical_use:
+        entry = ChemicalUsed(
+            inventory_id=new_record.id,
+            chemical_name=item.chemical_name,
+            quantity=item.quantity
+        )    
+        db.add(entry)
+        
+    for item in actual_chemical_used:
+        entry = ActualChemicalUsed(
+            inventory_id=new_record.id,
+            actual_chemicals_name=item.chemical_name,
+            quantity=item.quantity
+        )    
+        db.add(entry)
+        
+    db.commit()
+    final_record = db.query(InventoryRecord).options(
+        joinedload(InventoryRecord.chemicals_use),
+        joinedload(InventoryRecord.actual_chemicals_used)
+    ).filter(InventoryRecord.id == new_record.id).first()
+
+    return final_record
 
     

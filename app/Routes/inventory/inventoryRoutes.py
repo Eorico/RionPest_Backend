@@ -16,16 +16,23 @@ router = APIRouter(prefix='/inventory', tags=['Inventory'])
 def get_controller(db: Session = Depends(get_db)):
     return InventoryController(db)
 
-@router.post('/', response_model=InvRecRespo, dependencies=[Depends(requireRole(["admin"]))])
+@router.post('/', response_model=InvRecRespo, dependencies=[Depends(requireRole(["SuperAdmin","admin"]))])
 def addInventory(record: InvRecCreate, controller: InventoryController = Depends(get_controller)):
     try: 
-        return controller.add_record(
-            record.Date, record.category,record.client_name, 
-            record.start_time, record.end_time, record.chemical_name, 
-            record.actual_chemical_on_hand
+        new_record = controller.add_record(
+            record.date, record.month, record.year, record.category,record.client_name, 
+            record.start_time, record.end_time, record.meridiem, record.chemical_use, 
+            record.actual_chemical_used
         )
+        
+        if new_record is None:
+            raise HTTPException(status_code=500, detail="Controller returned none")
+        
+        return new_record
+        
     except Exception as e: 
-        print(f"Error: adding a product {e}")
+        print(f"Database error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get('/', response_model=list[InvRecRespo])
 def get_inventory(controller: InventoryController = Depends(get_controller)):
@@ -34,13 +41,16 @@ def get_inventory(controller: InventoryController = Depends(get_controller)):
         return [
             InvRecRespo(
                 id=r.id,
-                Date=r.date,
+                date=r.date,
+                month=r.month,
+                year=r.year,
                 category=r.category,
                 client_name=r.client_name,
                 start_time=r.start_time,
                 end_time=r.end_time,
-                chemical_name=r.chemical_name.name,
-                actual_chemical_on_hand=r.actual_chemical_on_hand
+                meridiem=r.meridiem,
+                chemical_use=r.chemicals_use,
+                actual_chemical_used=r.actual_chemicals_used
             ) for r in records
         ]
     except Exception as e:
@@ -54,12 +64,15 @@ def update_inventory(rec_id: int, usage_lt: float, controller: InventoryControll
             raise HTTPException(status_code=404, detail="Recod not found!")
         return InvRecRespo(
             id=record.id,
-            Date=record.date,
+            date=record.date,
+            month=record.month,
+            year=record.year,
             client_name=record.client_name,
             start_time=record.start_time,
             end_time=record.end_time,
-            chemical_name=record.chemical_name.name,
-            actual_chemical_on_hand=record.actual_chemical_on_hand
+            meridiem=record.meridiem,
+            chemical_use=record.chemicals_use,
+            actual_chemical_used=record.actual_chemicals_used
         )
     except Exception as e:
         print(f"Error: putting record unsuccessfull {e}")
@@ -97,12 +110,15 @@ def report(period: str, controller: InventoryController = Depends(get_controller
     return [
         InvRecRespo(
             id=r.id,
-            Date=r.date,
+            date=r.date,
+            month=r.month,
+            year=r.year,
             category=r.category,
             client_name=r.client_name,
             start_time=r.start_time,
             end_time=r.end_time,
-            chemical_name=r.chemical_name.name,
-            actual_chemical_on_hand=r.actual_chemical_on_hand
+            meridiem=r.meridiem,
+            chemical_use=r.chemicals_use,
+            actual_chemical_used=r.actual_chemicals_used
         ) for r in records
     ]

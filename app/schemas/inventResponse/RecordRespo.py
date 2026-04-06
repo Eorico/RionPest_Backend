@@ -1,17 +1,28 @@
-from pydantic import BaseModel, ConfigDict
-from datetime import date, time
+from pydantic import BaseModel, ConfigDict, Field
+from datetime import time
 from app.category.category import CategoryEnum
+from app.schemas.chemicalBase.chemBase import ChemicalUseBased
+from app.schemas.actualChemBase.actualChemBase import ActualChemicalUsedBased
+from typing import List
 
 class InvRecRespo(BaseModel):
     id: int
     
-    category: CategoryEnum
+    date: int
+    month: int
+    year: int
     
-    Date: date
+    category: CategoryEnum
     client_name: str
+    
     start_time: time
     end_time: time
+    meridiem: str
     
-    chemical_name: str
-    actual_chemical_on_hand: float
-    model_config = ConfigDict(from_attributes=True)
+    chemical_use: List[ChemicalUseBased] = Field(alias="chemicals_use")
+    actual_chemical_used: List[ActualChemicalUsedBased] = Field(alias="actual_chemicals_used")
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True
+    )

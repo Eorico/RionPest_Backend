@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Time, Float, Date, Boolean, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey, Time
+from sqlalchemy.orm import relationship
 from app.Database.database import Base
-from datetime import date
 from app.category.category import CategoryEnum
 
 class InventoryRecord(Base):
@@ -8,23 +8,36 @@ class InventoryRecord(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     
-    category = Column(Enum(CategoryEnum), default=CategoryEnum.treatment, nullable=False)
+    date = Column(Integer, nullable=False)
+    month = Column(Integer, nullable=False)
+    year = Column(Integer, nullable=False)
     
-    date = Column(Date, default=date.today)
+    category = Column(Enum(CategoryEnum), default=CategoryEnum.treatment, nullable=False)
     client_name = Column(String(100), nullable=False)
+    
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    chemical_name = Column(String(100), nullable=False)
-    actual_chemical_on_hand = Column(Float, nullable=False)
+    meridiem = Column(String(2), nullable=False)
+    
+    chemicals_use = relationship("ChemicalUsed", back_populates="parent_record")
+    actual_chemicals_used = relationship("ActualChemicalUsed", back_populates="parent_record")
     
     is_deleted = Column(Boolean, default=False, nullable=False)
     
-    def __repr__(self):
-        return (
-            f"<InventoryRecord(date={self.date})>,"
-            f"catgery={self.category},"
-            f"client={self.client_name},"
-            f"chemical={self.chemical_name.name},"
-            f"remaining={self.actual_chemical_on_hand},"
-        )
+class ChemicalUsed(Base):
+    __tablename__ = "chemicals_use"
     
+    id = Column(Integer, primary_key=True, index=True)
+    inventory_id = Column(Integer, ForeignKey("inventory_records.id"))
+    chemical_name = Column(String(100))
+    quantity = Column(String(50))
+    parent_record = relationship("InventoryRecord", back_populates="chemicals_use")
+    
+class ActualChemicalUsed(Base):
+    __tablename__ = "actual_chemicals_used"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    inventory_id = Column(Integer, ForeignKey("inventory_records.id"))
+    actual_chemicals_name = Column(String(100))
+    quantity = Column(String(50))
+    parent_record = relationship("InventoryRecord", back_populates="actual_chemicals_used")
