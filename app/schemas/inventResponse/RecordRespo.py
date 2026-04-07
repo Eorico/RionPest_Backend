@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import time
 from app.category.category import CategoryEnum
 from app.schemas.chemicalBase.chemBase import ChemicalUseBased
@@ -7,6 +7,8 @@ from typing import List
 
 class InvRecRespo(BaseModel):
     id: int
+    
+    admin_under: str
     
     date: int
     month: int
@@ -26,3 +28,10 @@ class InvRecRespo(BaseModel):
         from_attributes=True,
         populate_by_name=True
     )
+    
+    @field_validator("admin_under", mode="before")
+    @classmethod
+    def get_username_from_admin(cls, v):
+        if hasattr(v, "username"):
+            return v.username
+        return v

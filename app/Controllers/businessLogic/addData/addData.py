@@ -1,15 +1,23 @@
 from datetime import time
 from app.Models.record.inventoryRecord import InventoryRecord, ChemicalUsed, ActualChemicalUsed
+from app.Models.admin.admin import Admin
 from sqlalchemy.orm import Session, joinedload 
 
 def get_add_inventory_record(
-    db: Session, date: int, month: int, year: int, category: str,
+    db: Session, admin_username: str, date: int, 
+    month: int, year: int, category: str,
     client_name: str, start_time: time,
     end_time: time, meridiem: str, chemical_use: list,
     actual_chemical_used: list
     ):
     
+    admin = db.query(Admin).filter(Admin.username == admin_username).first()
+    if not admin:
+        raise Exception(f"Admin '{admin_username}' not found in database.")
+    
     new_record = InventoryRecord(
+        admin_id=admin.id,
+        admin_under=admin,
         date=date,
         month=month,
         year=year,

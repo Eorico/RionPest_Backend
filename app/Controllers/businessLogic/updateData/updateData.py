@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session 
 from app.Models.record.inventoryRecord import InventoryRecord
+from app.Models.admin.admin import Admin
 
 def update_inventory_usage(
     db: Session, rec_id: int,
-    Date=None,
+    admin_username: str =None,
+    date=None,
     month=None,
     year=None,
     category=None,
@@ -17,38 +19,24 @@ def update_inventory_usage(
     try:
         record = db.query(InventoryRecord).get(rec_id)
         
-        if not record:
-            return None
+        if not record: return None
         
-        if Date:
-            record.date = Date
-            
-        if month:
-            record.month = month
-            
-        if year:
-            record.year = year
-            
-        if category:
-            record.category = category
+        if admin_username:
+            admin = db.query(Admin).filter(Admin.username == admin_username).first()
+            if admin:
+                record.admin_id = admin.id
+                record.admin_under = admin.username
         
-        if client_name:
-            record.client_name = client_name
-            
-        if start_time:
-            record.start_time = start_time
-        
-        if end_time:
-            record.end_time = end_time
-            
-        if meridiem:
-            record.meridiem = meridiem
-            
-        if chemical_use is not None:
-            record.chemicals_use = actual_chemical_used
-            
-        if actual_chemical_used is not None:
-            record.actual_chemicals_used = actual_chemical_used
+        if date: record.date = date 
+        if month:record.month = month  
+        if year: record.year = year    
+        if category: record.category = category       
+        if client_name: record.client_name = client_name  
+        if start_time: record.start_time = start_time
+        if end_time: record.end_time = end_time      
+        if meridiem: record.meridiem = meridiem
+        if chemical_use is not None: record.chemicals_use = chemical_use
+        if actual_chemical_used is not None: record.actual_chemicals_used = actual_chemical_used
         
         db.commit()
         db.refresh(record) 

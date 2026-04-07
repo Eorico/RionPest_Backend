@@ -20,9 +20,12 @@ def get_controller(db: Session = Depends(get_db)):
 def addInventory(record: InvRecCreate, controller: InventoryController = Depends(get_controller)):
     try: 
         new_record = controller.add_record(
-            record.date, record.month, record.year, record.category,record.client_name, 
-            record.start_time, record.end_time, record.meridiem, record.chemical_use, 
-            record.actual_chemical_used
+            record.admin_under,
+            record.date, record.month,
+            record.year, record.category,
+            record.client_name, record.start_time, 
+            record.end_time, record.meridiem, 
+            record.chemical_use, record.actual_chemical_used
         )
         
         if new_record is None:
@@ -41,6 +44,7 @@ def get_inventory(controller: InventoryController = Depends(get_controller)):
         return [
             InvRecRespo(
                 id=r.id,
+                admin_under=r.admin_under.username if r.admin_under else "Unknown",
                 date=r.date,
                 month=r.month,
                 year=r.year,
@@ -64,6 +68,7 @@ def update_inventory(rec_id: int, usage_lt: float, controller: InventoryControll
             raise HTTPException(status_code=404, detail="Recod not found!")
         return InvRecRespo(
             id=record.id,
+            admin_under=record.admin_under,
             date=record.date,
             month=record.month,
             year=record.year,
@@ -110,6 +115,7 @@ def report(period: str, controller: InventoryController = Depends(get_controller
     return [
         InvRecRespo(
             id=r.id,
+            admin_under=getattr(r, 'admin_under', 'n/a'),
             date=r.date,
             month=r.month,
             year=r.year,

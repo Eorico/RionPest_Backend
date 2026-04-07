@@ -12,4 +12,4 @@ class Admin(Base):
     role = Column(String(50), default="admin")
     
     def __repr__(self):
-        return f"<Admin(username={self.usename}, role={self.role})>"
+        return f"<Admin(username={self.username}, role={self.role})>"

@@ -10,6 +10,8 @@ class InvRecCreate(BaseModel):
     month: int
     year: int
     
+    admin_under: str
+    
     category: CategoryEnum = CategoryEnum.treatment
     client_name: str
     

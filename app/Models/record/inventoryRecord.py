@@ -8,6 +8,9 @@ class InventoryRecord(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     
+    admin_id = Column(Integer, ForeignKey("admins.id"), nullable=False)
+    admin_under = relationship("Admin", backref="inventory_records")
+    
     date = Column(Integer, nullable=False)
     month = Column(Integer, nullable=False)
     year = Column(Integer, nullable=False)
