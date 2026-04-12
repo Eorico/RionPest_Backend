@@ -11,13 +11,23 @@ def soft_delete(db: Session, rec_id: int):
     return False
 # permanently delete
 def permanent_delete(db: Session, rec_id: int = None, delete_all: bool = False):
-    query = db.query(InventoryRecord).filter(InventoryRecord.is_deleted == True)
-    if not delete_all:
-        query = query.filter(InventoryRecord.id == rec_id)
-    
-    query.delete(synchronize_session=False)
+    if delete_all:
+        records = db.query(InventoryRecord).filter(InventoryRecord.is_deleted == True).all()
+        for record in records:
+            db.delete(record)
+    else:
+        record = db.query(InventoryRecord).filter(
+            InventoryRecord.id == rec_id,
+            InventoryRecord.is_deleted == True
+        ).first()
+        
+        if record:
+            db.delete(record)
+        else:
+            return False, "Record not found"
+        
     db.commit()
-    return True
+    return True, "Permanently deleted"
 # restore deleted records
 def restore_deleted_record(db: Session, rec_id: int = None, restore_all: bool = False):
     if restore_all:

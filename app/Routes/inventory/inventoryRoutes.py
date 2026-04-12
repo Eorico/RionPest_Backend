@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.schemas.InventCreate.RecordCreate import InvRecCreate
 from app.schemas.inventResponse.RecordRespo import InvRecRespo
@@ -10,14 +10,38 @@ from app.Controllers.businessLogic.deleteData.deleteData import (
     soft_delete, permanent_delete, restore_deleted_record
 )
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
+class InventoryRouter:
+    pass
 
 router = APIRouter(prefix='/inventory', tags=['Inventory'])
 
 def get_controller(db: Session = Depends(get_db)):
     return InventoryController(db)
 
+def map_to_respo(r:InventoryRecord) -> InvRecRespo:
+    return InvRecRespo(
+        id=r.id,
+        admin_under=r.admin_under.username if hasattr(r.admin_under, 'username') else "Unknown",
+        date=r.date,
+        month=r.month,
+        year=r.year,
+        category=r.category,
+        client_name=r.client_name,
+        start_time=r.start_time,
+        end_time=r.end_time,
+        meridiem=r.meridiem,
+        chemical_use=r.chemicals_use,
+        actual_chemical_used=r.actual_chemicals_used
+    )
+
 @router.post('/', response_model=InvRecRespo, dependencies=[Depends(requireRole(["SuperAdmin","admin"]))])
-def addInventory(record: InvRecCreate, controller: InventoryController = Depends(get_controller)):
+@limiter.limit("10/minute")
+def add_inventory(request: Request, record: InvRecCreate, controller: InventoryController = Depends(get_controller)):
     try: 
         new_record = controller.add_record(
             record.admin_under,
@@ -38,47 +62,21 @@ def addInventory(record: InvRecCreate, controller: InventoryController = Depends
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get('/', response_model=list[InvRecRespo])
-def get_inventory(controller: InventoryController = Depends(get_controller)):
-    records = controller.get_record()
+@limiter.limit("30/minute")
+def get_inventory(request: Request, db: Session = Depends(get_db)):
+    records = db.query(InventoryRecord).filter(InventoryRecord.is_deleted == False).all()
     try:
-        return [
-            InvRecRespo(
-                id=r.id,
-                admin_under=r.admin_under.username if r.admin_under else "Unknown",
-                date=r.date,
-                month=r.month,
-                year=r.year,
-                category=r.category,
-                client_name=r.client_name,
-                start_time=r.start_time,
-                end_time=r.end_time,
-                meridiem=r.meridiem,
-                chemical_use=r.chemicals_use,
-                actual_chemical_used=r.actual_chemicals_used
-            ) for r in records
-        ]
+        return [map_to_respo(r) for r in records]
     except Exception as e:
         print(f"Error: get record unsuccessfull {e}")
 
-@router.put('/{recordId}', response_model=InvRecRespo, dependencies=[Depends(requireRole(["admin"]))])
+@router.put('/{record_id}', response_model=InvRecRespo, dependencies=[Depends(requireRole(["admin"]))])
 def update_inventory(rec_id: int, usage_lt: float, controller: InventoryController = Depends(get_controller)):
-    record = controller.update_record(rec_id, usage_lt)
+    records = controller.update_record(rec_id, usage_lt)
     try:
-        if not record:
+        if not records:
             raise HTTPException(status_code=404, detail="Recod not found!")
-        return InvRecRespo(
-            id=record.id,
-            admin_under=record.admin_under,
-            date=record.date,
-            month=record.month,
-            year=record.year,
-            client_name=record.client_name,
-            start_time=record.start_time,
-            end_time=record.end_time,
-            meridiem=record.meridiem,
-            chemical_use=record.chemicals_use,
-            actual_chemical_used=record.actual_chemicals_used
-        )
+        return map_to_respo(records)
     except Exception as e:
         print(f"Error: putting record unsuccessfull {e}")
     
@@ -86,25 +84,27 @@ def update_inventory(rec_id: int, usage_lt: float, controller: InventoryControll
 def get_recycle_bin(db: Session = Depends(get_db)):
     return db.query(InventoryRecord).filter(InventoryRecord.is_deleted == True).all()
 
-@router.delete('{recordId}')
-def move_to_bin(recordId: int, db: Session = Depends(get_db)):
-    if soft_delete(db, recordId):
+@router.delete('/{record_id}')
+def move_to_bin(record_id: int, db: Session = Depends(get_db)):
+    if soft_delete(db, record_id):
         return {"message": "Moved to recycle bin"}
     raise HTTPException(status_code=404, detail="Record not found")
 
-@router.post('/restore/{recordId}')
-def restore(recordId: int, db: Session = Depends(get_db)):
-    restore_deleted_record(db, rec_id=recordId)
+@router.post('/restore/{record_id}')
+def restore(record_id: int, db: Session = Depends(get_db)):
+    restore_deleted_record(db, rec_id=record_id)
     return {"message": "Record restored"}
 
 @router.post('/restore-all')
-def restore_all(db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def restore_all(request: Request, db: Session = Depends(get_db)):
     restore_deleted_record(db, restore_all=True)
     return {"message": "All record restored"}
 
-@router.delete('/permanent/{recordId}')
-def hard_delete(recordId: int, db: Session = Depends(get_db)):
-    permanent_delete(db, rec_id=recordId)
+@router.delete('/permanent/{record_id}')
+@limiter.limit("5/minute")
+def hard_delete(request: Request, record_id: int, db: Session = Depends(get_db)):
+    permanent_delete(db, rec_id=record_id)
     return {"message": "Permanently deleted"}
         
 @router.get('/report/{period}', response_model=list[InvRecRespo])
@@ -112,19 +112,4 @@ def report(period: str, controller: InventoryController = Depends(get_controller
     if period not in ['week', 'month', 'year']:
         raise HTTPException(status_code=400, detail="Invalid period")
     records = controller.get_report(period)
-    return [
-        InvRecRespo(
-            id=r.id,
-            admin_under=getattr(r, 'admin_under', 'n/a'),
-            date=r.date,
-            month=r.month,
-            year=r.year,
-            category=r.category,
-            client_name=r.client_name,
-            start_time=r.start_time,
-            end_time=r.end_time,
-            meridiem=r.meridiem,
-            chemical_use=r.chemicals_use,
-            actual_chemical_used=r.actual_chemicals_used
-        ) for r in records
-    ]
+    return [map_to_respo(r) for r in records]
