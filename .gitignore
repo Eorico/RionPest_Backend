@@ -1,1 +1,2 @@
 app/.env
+app/generate_secrets.py

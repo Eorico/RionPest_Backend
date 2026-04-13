@@ -3,10 +3,23 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import jwt
 from app.Models.admin.admin import Admin
+from dotenv import load_dotenv
+from pathlib import Path
+import os
 
-SECRET_KEY = ""
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+env_path = Path(__file__).resolve().parent.parent / ".env"
+
+load_dotenv(dotenv_path=env_path)
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+
+
+raw_expire = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+try:
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(raw_expire) if raw_expire else 60
+except (ValueError, TypeError):
+    ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 
