@@ -34,6 +34,7 @@ class ChemicalUsed(Base):
     inventory_id = Column(Integer, ForeignKey("inventory_records.id"))
     chemical_name = Column(String(100))
     quantity = Column(String(50))
+    remarks = Column(String(255), nullable=True)
     parent_record = relationship("InventoryRecord", back_populates="chemicals_use")
     
 class ActualChemicalUsed(Base):
@@ -43,4 +44,5 @@ class ActualChemicalUsed(Base):
     inventory_id = Column(Integer, ForeignKey("inventory_records.id"))
     actual_chemicals_name = Column(String(100))
     quantity = Column(String(50))
+    remarks = Column(String(255), nullable=True)
     parent_record = relationship("InventoryRecord", back_populates="actual_chemicals_used")

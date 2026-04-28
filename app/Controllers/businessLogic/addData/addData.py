@@ -35,7 +35,8 @@ def get_add_inventory_record(
         entry = ChemicalUsed(
             inventory_id=new_record.id,
             chemical_name=item.chemical_name,
-            quantity=item.quantity
+            quantity=item.quantity,
+            remarks=getattr(item, 'remarks', None)
         )    
         db.add(entry)
         
@@ -43,7 +44,8 @@ def get_add_inventory_record(
         entry = ActualChemicalUsed(
             inventory_id=new_record.id,
             actual_chemicals_name=item.chemical_name,
-            quantity=item.quantity
+            quantity=item.quantity,
+            remarks=getattr(item, 'remarks', None)
         )    
         db.add(entry)
         
