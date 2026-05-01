@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.schemas.InventCreate.RecordCreate import InvRecCreate
 from app.schemas.inventResponse.RecordRespo import InvRecRespo
+from app.schemas.InventUpdate.RecordUpdate import InvRecUpdate
 from app.Controllers.inventory.inventoryController import InventoryController
 from app.Database.database import get_db
 from app.auth.authJWTdepedency import requireRole
@@ -70,15 +71,18 @@ def get_inventory(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error: get record unsuccessfull {e}")
 
-@router.put('/{record_id}', response_model=InvRecRespo, dependencies=[Depends(requireRole(["admin"]))])
-def update_inventory(rec_id: int, usage_lt: float, controller: InventoryController = Depends(get_controller)):
-    records = controller.update_record(rec_id, usage_lt)
+@router.put('/{record_id}', response_model=InvRecRespo, 
+            dependencies=[Depends(requireRole(["SuperAdmin","admin"]))])
+@limiter.limit("20/minute")
+def update_inventory(request: Request, rec_id: int, payload: InvRecUpdate, controller: InventoryController = Depends(get_controller)):
     try:
-        if not records:
-            raise HTTPException(status_code=404, detail="Recod not found!")
-        return map_to_respo(records)
+         updated = controller.update_record(rec_id, payload)
+         if not updated:
+             raise HTTPException(status_code=404, detail="Record not found or already deleted")
+         return map_to_respo(updated)
     except Exception as e:
-        print(f"Error: putting record unsuccessfull {e}")
+        print(f"Error: update record unsuccessfull {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     
 @router.get('/recycle-bin', response_model=list[InvRecRespo])
 def get_recycle_bin(db: Session = Depends(get_db)):

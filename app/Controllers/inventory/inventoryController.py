@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from datetime import date, time
+from datetime import time
 from app.Controllers.businessLogic.addData.addData import get_add_inventory_record
 from app.Controllers.businessLogic.readData.readData import fetch_all_records
 from app.Controllers.businessLogic.generateReport.generateReport import generate_report
@@ -7,6 +7,8 @@ from app.Controllers.businessLogic.updateData.updateData import update_inventory
 from app.Controllers.businessLogic.deleteData.deleteData import (
     soft_delete, permanent_delete, restore_deleted_record
 )
+
+from app.schemas.InventUpdate.RecordUpdate import InvRecUpdate
 
 class InventoryController:
     def __init__(self, db: Session):
@@ -26,8 +28,21 @@ class InventoryController:
     def get_record(self):
         return fetch_all_records(self.db)
     
-    def update_record(self, rec_id: int, actual_chemical_used: list):
-        return update_inventory_usage(self.db, rec_id, actual_chemical_used)
+    def update_record(self, rec_id: int, payload: InvRecUpdate):
+        return update_inventory_usage(
+            self.db, 
+            rec_id, 
+            date=payload.date,
+            month=payload.month,
+            year=payload.year,
+            category=payload.category,
+            client_name=payload.client_name,
+            start_time=payload.start_time,
+            end_time=payload.end_time,
+            meridiem=payload.meridiem,
+            chemical_use=payload.chemical_use,
+            actual_chemical_used=payload.actual_chemical_used
+        )
     
     def get_report(self, period: str):
         return generate_report(self.db, period)

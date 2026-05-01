@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session 
-from app.Models.record.inventoryRecord import InventoryRecord
+from app.Models.record.inventoryRecord import InventoryRecord, ChemicalUsed, ActualChemicalUsed
 from app.Models.admin.admin import Admin
 
 def update_inventory_usage(
@@ -13,11 +13,14 @@ def update_inventory_usage(
     start_time=None,
     end_time=None,
     meridiem=None,
-    chemical_use=None,
-    actual_chemical_used=None
+    chemical_use: list = None,
+    actual_chemical_used: list = None
     ):
     try:
-        record = db.query(InventoryRecord).get(rec_id)
+        record = db.query(InventoryRecord).filter(
+            InventoryRecord.id == rec_id,
+            InventoryRecord.is_deleted == False
+        ).first()
         
         if not record: return None
         
@@ -25,7 +28,6 @@ def update_inventory_usage(
             admin = db.query(Admin).filter(Admin.username == admin_username).first()
             if admin:
                 record.admin_id = admin.id
-                record.admin_under = admin.username
         
         if date: record.date = date 
         if month:record.month = month  
@@ -35,14 +37,32 @@ def update_inventory_usage(
         if start_time: record.start_time = start_time
         if end_time: record.end_time = end_time      
         if meridiem: record.meridiem = meridiem
-        if chemical_use is not None: record.chemicals_use = chemical_use
-        if actual_chemical_used is not None: record.actual_chemicals_used = actual_chemical_used
+        
+        if chemical_use is not None:  
+            record.chemicals.use.clear()
+            record.chemicals_use = [
+                ChemicalUsed(
+                    chemical_name=c.chemical_name,
+                    quantity=c.quantity,
+                    remarks=c.remarks
+                ) for c in chemical_use
+            ]
+            
+        if actual_chemical_used is not None: 
+            record.actual_chemicals_used.clear()
+            record.actual_chemicals_used = [
+                ActualChemicalUsed(
+                    chemical_name=c.chemical_name,
+                    quantity=c.quantity,
+                    remarks=c.remarks
+                ) for c in actual_chemical_used
+            ]
         
         db.commit()
         db.refresh(record) 
         
         return record
     except Exception as e:
-        return print(f"Updating inventory usage unsuccesfull: {e}")
-     
-   
+        db.rollback()
+        print(f"Updating inventory usage unsuccesfull: {e}")
+        return None
