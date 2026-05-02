@@ -19,7 +19,9 @@ class InvRecRespo(BaseModel):
     
     start_time: time
     end_time: time
-    meridiem: str
+    
+    start_meridiem: str
+    end_meridiem: str
     
     chemical_use: List[ChemicalUseBased] = Field(alias="chemicals_use")
     actual_chemical_used: List[ActualChemicalUsedBased] = Field(alias="actual_chemicals_used")

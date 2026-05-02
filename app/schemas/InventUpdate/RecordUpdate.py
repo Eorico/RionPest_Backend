@@ -6,14 +6,15 @@ from app.schemas.actualChemBase.actualChemBase import ActualChemicalUsedBased
 from typing import List, Optional
 
 class InvRecUpdate(BaseModel):
-    date:        Optional[int]          = None
-    month:       Optional[int]          = None
-    year:        Optional[int]          = None
-    category:    Optional[CategoryEnum] = None
-    client_name: Optional[str]          = None
-    start_time:  Optional[time]         = None
-    end_time:    Optional[time]         = None
-    meridiem:    Optional[str]          = None
+    date: Optional[int] = None
+    month: Optional[int]  = None
+    year: Optional[int]  = None
+    category: Optional[CategoryEnum] = None
+    client_name: Optional[str]  = None
+    start_time: Optional[time]  = None
+    end_time: Optional[time]  = None
+    start_meridiem: Optional[str]  = None
+    end_meridiem: Optional[str] = None
 
     # Use the same aliases as InvRecCreate so the frontend payload is consistent
     chemical_use: Optional[List[ChemicalUseBased]] = Field(

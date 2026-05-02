@@ -7,7 +7,7 @@ def get_add_inventory_record(
     db: Session, admin_username: str, date: int, 
     month: int, year: int, category: str,
     client_name: str, start_time: time,
-    end_time: time, meridiem: str, chemical_use: list,
+    end_time: time, start_meridiem: str, end_meridiem: str, chemical_use: list,
     actual_chemical_used: list
     ):
     
@@ -25,7 +25,8 @@ def get_add_inventory_record(
         client_name=client_name,
         start_time=start_time,
         end_time=end_time,
-        meridiem=meridiem,
+        start_meridiem=start_meridiem,
+        end_meridiem=end_meridiem
     )
     db.add(new_record)
     db.commit()

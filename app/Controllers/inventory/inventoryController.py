@@ -16,13 +16,14 @@ class InventoryController:
         
     def add_record(
         self, admin_under: str, date: int, month: int, year: int, category: str,client_name: str,
-        start_time: time, end_time: time, meridiem: str, chemical_use: list,
+        start_time: time, end_time: time, start_meridiem: str, end_meridiem: str, chemical_use: list,
         actual_chemical_used: list
     ):
         return get_add_inventory_record(
             self.db, admin_under, date, month, 
             year, category, client_name, start_time, 
-            end_time, meridiem, chemical_use, actual_chemical_used,
+            end_time, start_meridiem, end_meridiem,
+            chemical_use, actual_chemical_used,
         )
         
     def get_record(self):
@@ -39,7 +40,8 @@ class InventoryController:
             client_name=payload.client_name,
             start_time=payload.start_time,
             end_time=payload.end_time,
-            meridiem=payload.meridiem,
+            start_meridiem=payload.start_meridiem,
+            end_meridiem=payload.end_meridiem,
             chemical_use=payload.chemical_use,
             actual_chemical_used=payload.actual_chemical_used
         )

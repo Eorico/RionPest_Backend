@@ -35,7 +35,8 @@ def map_to_respo(r:InventoryRecord) -> InvRecRespo:
         client_name=r.client_name,
         start_time=r.start_time,
         end_time=r.end_time,
-        meridiem=r.meridiem,
+        start_meridiem=r.start_meridiem,
+        end_meridiem=r.end_meridiem,
         chemical_use=r.chemicals_use,
         actual_chemical_used=r.actual_chemicals_used
     )
@@ -49,7 +50,7 @@ def add_inventory(request: Request, record: InvRecCreate, controller: InventoryC
             record.date, record.month,
             record.year, record.category,
             record.client_name, record.start_time, 
-            record.end_time, record.meridiem, 
+            record.end_time, record.start_meridiem, record.end_meridiem, 
             record.chemical_use, record.actual_chemical_used
         )
         
@@ -74,9 +75,9 @@ def get_inventory(request: Request, db: Session = Depends(get_db)):
 @router.put('/{record_id}', response_model=InvRecRespo, 
             dependencies=[Depends(requireRole(["SuperAdmin","admin"]))])
 @limiter.limit("20/minute")
-def update_inventory(request: Request, rec_id: int, payload: InvRecUpdate, controller: InventoryController = Depends(get_controller)):
+def update_inventory(request: Request, record_id: int, payload: InvRecUpdate, controller: InventoryController = Depends(get_controller)):
     try:
-         updated = controller.update_record(rec_id, payload)
+         updated = controller.update_record(record_id, payload)
          if not updated:
              raise HTTPException(status_code=404, detail="Record not found or already deleted")
          return map_to_respo(updated)

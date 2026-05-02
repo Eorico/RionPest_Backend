@@ -20,7 +20,9 @@ class InventoryRecord(Base):
     
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    meridiem = Column(String(2), nullable=False)
+    
+    start_meridiem = Column(String(2), nullable=False)
+    end_meridiem = Column(String(2), nullable=False)
     
     chemicals_use = relationship("ChemicalUsed", back_populates="parent_record", cascade="all, delete-orphan")
     actual_chemicals_used = relationship("ActualChemicalUsed", back_populates="parent_record", cascade="all, delete-orphan")

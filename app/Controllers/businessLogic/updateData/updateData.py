@@ -12,7 +12,8 @@ def update_inventory_usage(
     client_name=None,
     start_time=None,
     end_time=None,
-    meridiem=None,
+    start_meridiem=None,
+    end_meridiem=None,
     chemical_use: list = None,
     actual_chemical_used: list = None
     ):
@@ -36,25 +37,30 @@ def update_inventory_usage(
         if client_name: record.client_name = client_name  
         if start_time: record.start_time = start_time
         if end_time: record.end_time = end_time      
-        if meridiem: record.meridiem = meridiem
+        if start_meridiem: record.start_meridiem = start_meridiem
+        if end_meridiem: record.end_meridiem = end_meridiem
         
-        if chemical_use is not None:  
-            record.chemicals.use.clear()
+        if chemical_use is not None:
+            record.chemicals_use.clear()
+            db.flush()
             record.chemicals_use = [
                 ChemicalUsed(
+                    inventory_id=record.id,
                     chemical_name=c.chemical_name,
                     quantity=c.quantity,
-                    remarks=c.remarks
+                    remarks=c.remarks or ""
                 ) for c in chemical_use
             ]
-            
-        if actual_chemical_used is not None: 
+
+        if actual_chemical_used is not None:
             record.actual_chemicals_used.clear()
+            db.flush()
             record.actual_chemicals_used = [
                 ActualChemicalUsed(
-                    chemical_name=c.chemical_name,
+                    inventory_id=record.id,
+                    actual_chemicals_name=c.chemical_name,   
                     quantity=c.quantity,
-                    remarks=c.remarks
+                    remarks=c.remarks or ""
                 ) for c in actual_chemical_used
             ]
         
