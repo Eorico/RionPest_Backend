@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import date, time
-from app.category.category import CategoryEnum
-from app.schemas.chemicalBase.chemBase import ChemicalUseBased
-from app.schemas.actualChemBase.actualChemBase import ActualChemicalUsedBased
+from app.Enum.category import CategoryEnum
+from app.Schemas.chemicalBase.chemBase import ChemicalUseBased
+from app.Schemas.actualChemBase.actualChemBase import ActualChemicalUsedBased
 from typing import List
 
 class InvRecCreate(BaseModel):

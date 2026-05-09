@@ -1,15 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from app.schemas.InventCreate.RecordCreate import InvRecCreate
-from app.schemas.inventResponse.RecordRespo import InvRecRespo
-from app.schemas.InventUpdate.RecordUpdate import InvRecUpdate
+from app.Schemas.inventCreate.RecordCreate import InvRecCreate
+from app.Schemas.inventResponse.RecordRespo import InvRecRespo
+from app.Schemas.inventUpdate.RecordUpdate import InvRecUpdate
 from app.Controllers.inventory.inventoryController import InventoryController
 from app.Database.database import get_db
-from app.auth.authJWTdepedency import requireRole
-from app.Models.record.inventoryRecord import InventoryRecord
-from app.Controllers.businessLogic.deleteData.deleteData import (
-    soft_delete, permanent_delete, restore_deleted_record
-)
+from app.Middleware.authJWTdepedency import requireRole
+from app.Models.inventory.inventoryRecord import InventoryRecord
+from app.Services.inventory.inventoryService import inventory_service
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -91,25 +89,25 @@ def get_recycle_bin(db: Session = Depends(get_db)):
 
 @router.delete('/{record_id}')
 def move_to_bin(record_id: int, db: Session = Depends(get_db)):
-    if soft_delete(db, record_id):
+    if inventory_service.soft_delete(db, record_id):
         return {"message": "Moved to recycle bin"}
     raise HTTPException(status_code=404, detail="Record not found")
 
 @router.post('/restore/{record_id}')
 def restore(record_id: int, db: Session = Depends(get_db)):
-    restore_deleted_record(db, rec_id=record_id)
+    inventory_service.restore_record(db, rec_id=record_id)
     return {"message": "Record restored"}
 
 @router.post('/restore-all')
 @limiter.limit("3/minute")
 def restore_all(request: Request, db: Session = Depends(get_db)):
-    restore_deleted_record(db, restore_all=True)
+    inventory_service.restore_record(db, restore_all=True)
     return {"message": "All record restored"}
 
 @router.delete('/permanent/{record_id}')
 @limiter.limit("5/minute")
 def hard_delete(request: Request, record_id: int, db: Session = Depends(get_db)):
-    permanent_delete(db, rec_id=record_id)
+    inventory_service.permanent_delete(db, rec_id=record_id)
     return {"message": "Permanently deleted"}
         
 @router.get('/report/{period}', response_model=list[InvRecRespo])

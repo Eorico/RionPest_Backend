@@ -1,19 +1,25 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from app.auth.authService import SECRET_KEY, ALGORITHM
 from sqlalchemy.orm import Session
 from app.Database.database import get_db
 from app.Models.admin.admin import Admin
+from dotenv import load_dotenv
+from pathlib import Path
+import os
+
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 oauthScheme = OAuth2PasswordBearer(tokenUrl='auth/login')
+
 
 def get_current_admin(
     token: str = Depends(oauthScheme),
     db: Session = Depends(get_db)
     ):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, os.getenv("SECRET_KEY", ""), algorithms=[os.getenv("ALGORITHM", "HS256")])
         username: str = payload.get("sub")
         
         if username is None:

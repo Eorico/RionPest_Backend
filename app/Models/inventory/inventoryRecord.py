@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey, Time
 from sqlalchemy.orm import relationship
 from app.Database.database import Base
-from app.category.category import CategoryEnum
+from app.Enum.category import CategoryEnum
 
 class InventoryRecord(Base):
     __tablename__ = "inventory_records"
