@@ -4,6 +4,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.Routes.inventory.inventoryRoutes import router as inventory_router
 from app.Routes.admin.admin import router as admin_router
+from app.Routes.documents.documentRoutes import router as document_router
 from app.Database.database import Base, engine
 
 limiter = Limiter(key_func=get_remote_address)
@@ -20,3 +21,4 @@ def health_check():
 
 app.include_router(inventory_router)
 app.include_router(admin_router)
+app.include_router(document_router)
